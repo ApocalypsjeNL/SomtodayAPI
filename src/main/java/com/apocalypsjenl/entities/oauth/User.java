@@ -29,7 +29,7 @@ import org.json.JSONObject;
 
 import java.util.Base64;
 
-public class OauthUser extends WebEntity {
+public class User extends WebEntity {
 
     private String accessToken;
     private String refreshToken;
@@ -40,12 +40,15 @@ public class OauthUser extends WebEntity {
     private String tokenType;
     private Integer expiresIn;
 
-    public OauthUser() {
+    public User() {
         super("/oauth2/token", WebRequest.requestTypes.POST);
+
+        this.addHeader("Accept", "application/json");
+        this.addHeader("Authorization", "Basic " + Base64.getEncoder().encodeToString((WebRequest.clientId + ":" + WebRequest.secretId).getBytes()));
     }
 
     @Override
-    public OauthUser parse(String json) {
+    public User parse(String json) {
         this.handleResponse(json);
         return this;
     }
@@ -78,9 +81,6 @@ public class OauthUser extends WebEntity {
     }
 
     public void login(String schoolUuid, String username, String password) {
-        this.addHeader("Accept", "application/json");
-        this.addHeader("Authorization", "Basic " + Base64.getEncoder().encodeToString((WebRequest.clientId + ":" + WebRequest.secretId).getBytes()));
-
         this.addParameter("username", schoolUuid + "\\" + username);
         this.addParameter("password", password);
         this.addParameter("scope", "openid");
