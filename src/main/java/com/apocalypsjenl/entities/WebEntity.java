@@ -22,6 +22,7 @@
 
 package com.apocalypsjenl.entities;
 
+import com.apocalypsjenl.exception.InvalidRequestTypeException;
 import com.apocalypsjenl.util.WebRequest;
 
 import java.util.HashMap;
@@ -41,9 +42,20 @@ public abstract class WebEntity {
 
     public abstract void handleResponse(String response);
 
-    public abstract WebEntity parse(String json);
+    public WebEntity parse(String json) {
+        this.handleResponse(json);
+        return this;
+    }
 
     public abstract String toJson();
+
+    public void makeRequest() {
+        try {
+            WebRequest.makeRequest(this);
+        } catch (InvalidRequestTypeException e) {
+            e.printStackTrace();
+        }
+    }
 
     public HashMap<String, String> headers() {
         return headers;

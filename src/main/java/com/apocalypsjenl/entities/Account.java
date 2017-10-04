@@ -20,48 +20,56 @@
  * SOFTWARE.
  */
 
-package com.apocalypsjenl.entities.account;
+package com.apocalypsjenl.entities;
 
+import com.apocalypsjenl.entities.Link;
+import com.apocalypsjenl.entities.Permission;
+import com.apocalypsjenl.entities.Person;
+import com.apocalypsjenl.entities.WebEntity;
+import com.apocalypsjenl.util.WebRequest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class Person {
+public class Account extends WebEntity {
 
-    private String type;
     private Link[] links;
     private Permission[] permissions;
     //TODO Research what this is
     private JSONObject additionalObjects;
-    private Integer pupilId;
-    private String firstName;
-    private String lastName;
+    private String username;
+    //TODO Research what this is
+    private JSONArray accountPermissions;
+    private Person person;
 
-    public Person parse(JSONObject json) {
-        this.handleResponse(json);
-        return this;
+    public Account(String accessToken) {
+        super("/rest/v1/account/me", WebRequest.requestTypes.GET);
+
+        this.addHeader("Accept", "application/json");
+        this.addHeader("Authorization", "Bearer " + accessToken);
     }
 
-    public void handleResponse(JSONObject response) {
-        this.type = response.getString("$type");
-        JSONArray linkArray = response.getJSONArray("links");
+    @Override
+    public void handleResponse(String response) {
+        JSONObject object = new JSONObject(response);
+        JSONArray linkArray = object.getJSONArray("links");
         this.links = new Link[linkArray.length()];
         for(int i = 0; i < linkArray.length(); i++) {
             this.links[i] = new Link().parse(linkArray.getJSONObject(i));
         }
-        JSONArray permissionArray = response.getJSONArray("permissions");
+        JSONArray permissionArray = object.getJSONArray("permissions");
         this.permissions = new Permission[permissionArray.length()];
         for(int i = 0; i < permissionArray.length(); i++) {
-            this.permissions[i] = new Permission().parse(permissionArray.getJSONObject(i));
+            this.permissions[i] = new Permission().parse((permissionArray.getJSONObject(i)));
         }
-        this.additionalObjects = (JSONObject) response.get("additionalObjects");
-        this.pupilId = (Integer) response.get("leerlingnummer");
-        this.firstName = response.getString("roepnaam");
-        this.lastName = response.getString("achternaam");
+        this.additionalObjects = (JSONObject) object.get("additionalObjects");
+        this.username = object.getString("gebruikersnaam");
+        this.accountPermissions = (JSONArray) object.get("accountPermissions");
+        this.person = new Person().parse(object.getJSONObject("persoon"));
     }
 
-    public JSONObject toJson() {
+    @Override
+    public String toJson() {
         JSONObject object = new JSONObject();
-        object.put("$type", this.type);
         JSONArray linkArray = new JSONArray();
         for(Link link : this.links) {
             linkArray.put(link.toJson());
@@ -73,14 +81,10 @@ public class Person {
         }
         object.put("permissions", permissionArray);
         object.put("additionalObjects", this.additionalObjects);
-        object.put("leerlingnummer", this.pupilId);
-        object.put("roepnaam", this.firstName);
-        object.put("achternaam", this.lastName);
-        return object;
-    }
-
-    public String getType() {
-        return type;
+        object.put("gebruikersnaam", this.username);
+        object.put("accountPermissions", this.accountPermissions);
+        object.put("persoon", this.person.toJson());
+        return object.toString();
     }
 
     public Link[] getLinks() {
@@ -95,15 +99,15 @@ public class Person {
         return additionalObjects;
     }
 
-    public Integer getPupilId() {
-        return pupilId;
+    public String getUsername() {
+        return username;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public JSONArray getAccountPermissions() {
+        return accountPermissions;
     }
 
-    public String getLastName() {
-        return lastName;
+    public Person getPerson() {
+        return person;
     }
 }

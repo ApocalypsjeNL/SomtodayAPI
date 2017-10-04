@@ -20,68 +20,51 @@
  * SOFTWARE.
  */
 
-package com.apocalypsjenl.entities.account;
+package com.apocalypsjenl.entities;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class Permission {
+public class Link {
 
-    private String full;
+    private Integer id;
+    private String rel;
     private String type;
-    private String[] operations;
-    private String[] instances;
+    private String href;
 
-    public Permission parse(JSONObject json) {
+    public Link parse(JSONObject json) {
         this.handleResponse(json);
         return this;
     }
 
     public void handleResponse(JSONObject response) {
-        this.full = response.getString("full");
+        this.id = (Integer) response.get("id");
+        this.rel = response.getString("rel");
         this.type = response.getString("type");
-        JSONArray operationsArray = response.getJSONArray("operations");
-        this.operations = new String[operationsArray.length()];
-        for(int i = 0; i < operationsArray.length(); i++) {
-            this.operations[i] = operationsArray.getString(i);
-        }
-        JSONArray instancesArray = response.getJSONArray("instances");
-        this.instances = new String[instancesArray.length()];
-        for(int i = 0; i < instancesArray.length(); i++) {
-            this.instances[i] = instancesArray.getString(i);
-        }
+        this.href = response.getString("href");
     }
 
     public JSONObject toJson() {
         JSONObject object = new JSONObject();
-        object.put("full", this.full);
+        object.put("id", this.id);
+        object.put("rel", this.rel);
         object.put("type", this.type);
-        JSONArray operationsArray = new JSONArray();
-        for(String operation : this.operations) {
-            operationsArray.put(operation);
-        }
-        object.put("operations", operationsArray);
-        JSONArray instancesArray = new JSONArray();
-        for(String instance : this.instances) {
-            instancesArray.put(instance);
-        }
-        object.put("instances", instancesArray);
+        object.put("href", this.href);
         return object;
     }
 
-    public String getFull() {
-        return full;
+    public Integer getId() {
+        return id;
+    }
+
+    public String getRel() {
+        return rel;
     }
 
     public String getType() {
         return type;
     }
 
-    public String[] getOperations() {
-        return operations;
-    }
-
-    public String[] getInstances() {
-        return instances;
+    public String getHref() {
+        return href;
     }
 }

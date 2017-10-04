@@ -20,10 +20,8 @@
  * SOFTWARE.
  */
 
-package com.apocalypsjenl.entities.oauth;
+package com.apocalypsjenl.entities;
 
-import com.apocalypsjenl.entities.WebEntity;
-import com.apocalypsjenl.exception.InvalidRequestTypeException;
 import com.apocalypsjenl.util.WebRequest;
 import org.json.JSONObject;
 
@@ -45,12 +43,6 @@ public class User extends WebEntity {
 
         this.addHeader("Accept", "application/json");
         this.addHeader("Authorization", "Basic " + Base64.getEncoder().encodeToString((WebRequest.clientId + ":" + WebRequest.secretId).getBytes()));
-    }
-
-    @Override
-    public User parse(String json) {
-        this.handleResponse(json);
-        return this;
     }
 
     @Override
@@ -86,11 +78,8 @@ public class User extends WebEntity {
         this.addParameter("scope", "openid");
         this.addParameter("grant_type", "password");
 
-        try {
-            WebRequest.makeRequest(this);
-        } catch (InvalidRequestTypeException e) {
-            e.printStackTrace();
-        }
+        this.makeRequest();
+        WebRequest.baseUrl = this.getApiUrl();
     }
 
     public String getAccessToken() {

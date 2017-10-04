@@ -20,58 +20,44 @@
  * SOFTWARE.
  */
 
-package com.apocalypsjenl.entities.account;
+package com.apocalypsjenl.entities;
 
-import com.apocalypsjenl.entities.WebEntity;
-import com.apocalypsjenl.util.WebRequest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class Account extends WebEntity {
+public class AbsenceReason {
 
     private Link[] links;
     private Permission[] permissions;
     //TODO Research what this is
     private JSONObject additionalObjects;
-    private String username;
-    //TODO Research what this is
-    private JSONArray accountPermissions;
-    private Person person;
+    private String absenceType;
+    private String description;
+    private Boolean allowed;
 
-    public Account(String accessToken) {
-        super("/rest/v1/account/me", WebRequest.requestTypes.GET);
-
-        this.addHeader("Accept", "application/json");
-        this.addHeader("Authorization", "Bearer " + accessToken);
-    }
-
-    @Override
-    public WebEntity parse(String json) {
+    public AbsenceReason parse(JSONObject json) {
         this.handleResponse(json);
         return this;
     }
 
-    @Override
-    public void handleResponse(String response) {
-        JSONObject object = new JSONObject(response);
-        JSONArray linkArray = object.getJSONArray("links");
+    public void handleResponse(JSONObject response) {
+        JSONArray linkArray = response.getJSONArray("links");
         this.links = new Link[linkArray.length()];
         for(int i = 0; i < linkArray.length(); i++) {
             this.links[i] = new Link().parse(linkArray.getJSONObject(i));
         }
-        JSONArray permissionArray = object.getJSONArray("permissions");
+        JSONArray permissionArray = response.getJSONArray("permissions");
         this.permissions = new Permission[permissionArray.length()];
         for(int i = 0; i < permissionArray.length(); i++) {
-            this.permissions[i] = new Permission().parse((permissionArray.getJSONObject(i)));
+            this.permissions[i] = new Permission().parse(permissionArray.getJSONObject(i));
         }
-        this.additionalObjects = (JSONObject) object.get("additionalObjects");
-        this.username = object.getString("gebruikersnaam");
-        this.accountPermissions = (JSONArray) object.get("accountPermissions");
-        this.person = new Person().parse(object.getJSONObject("persoon"));
+        this.additionalObjects = (JSONObject) response.get("additionalObjects");
+        this.absenceType = response.getString("afkorting");
+        this.description = response.getString("omschrijving");
+        this.allowed = response.getBoolean("geoorloofd");
     }
 
-    @Override
-    public String toJson() {
+    public JSONObject toJson() {
         JSONObject object = new JSONObject();
         JSONArray linkArray = new JSONArray();
         for(Link link : this.links) {
@@ -84,10 +70,10 @@ public class Account extends WebEntity {
         }
         object.put("permissions", permissionArray);
         object.put("additionalObjects", this.additionalObjects);
-        object.put("gebruikersnaam", this.username);
-        object.put("accountPermissions", this.accountPermissions);
-        object.put("persoon", this.person.toJson());
-        return object.toString();
+        object.put("afkorting", this.absenceType);
+        object.put("omschrijving", this.description);
+        object.put("geoorloofd", this.allowed);
+        return object;
     }
 
     public Link[] getLinks() {
@@ -102,15 +88,15 @@ public class Account extends WebEntity {
         return additionalObjects;
     }
 
-    public String getUsername() {
-        return username;
+    public String getAbsenceType() {
+        return absenceType;
     }
 
-    public JSONArray getAccountPermissions() {
-        return accountPermissions;
+    public String getDescription() {
+        return description;
     }
 
-    public Person getPerson() {
-        return person;
+    public Boolean isAllowed() {
+        return allowed;
     }
 }
