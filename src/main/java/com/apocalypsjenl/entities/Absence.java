@@ -33,7 +33,7 @@ public class Absence extends WebEntity {
     public Absence(String accessToken) {
         super("/rest/v1/absentiemeldingen", WebRequest.requestTypes.GET);
 
-        this.addHeader("Accept", "application/json");
+        this.addHeader("Accept", "application/vnd.topicus.platinum+json");
         this.addHeader("Authorization", "Bearer " + accessToken);
     }
 

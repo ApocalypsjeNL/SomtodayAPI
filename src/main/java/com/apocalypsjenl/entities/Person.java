@@ -42,7 +42,7 @@ public class Person {
     }
 
     public void handleResponse(JSONObject response) {
-        this.type = response.getString("$type");
+        if(response.has("$type")) this.type = response.getString("$type");
         JSONArray linkArray = response.getJSONArray("links");
         this.links = new Link[linkArray.length()];
         for(int i = 0; i < linkArray.length(); i++) {
@@ -61,7 +61,7 @@ public class Person {
 
     public JSONObject toJson() {
         JSONObject object = new JSONObject();
-        object.put("$type", this.type);
+        if(this.type != null) object.put("$type", this.type);
         JSONArray linkArray = new JSONArray();
         for(Link link : this.links) {
             linkArray.put(link.toJson());

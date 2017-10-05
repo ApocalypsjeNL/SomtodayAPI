@@ -23,6 +23,7 @@
 package com.apocalypsjenl.entities;
 
 import com.apocalypsjenl.util.WebRequest;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class AbsenceEntity {
@@ -49,10 +50,51 @@ public class AbsenceEntity {
 
     public void handleResponse(JSONObject response) {
         this.type = response.getString("$type");
+        JSONArray linkArray = response.getJSONArray("links");
+        this.links = new Link[linkArray.length()];
+        for(int i = 0; i < linkArray.length(); i++) {
+            this.links[i] = new Link().parse(linkArray.getJSONObject(i));
+        }
+        JSONArray permissionArray = response.getJSONArray("permissions");
+        this.permissions = new Permission[permissionArray.length()];
+        for(int i = 0; i < permissionArray.length(); i++) {
+            this.permissions[i] = new Permission().parse((permissionArray.getJSONObject(i)));
+        }
+        this.additionalObjects = response.getJSONObject("additionalObjects");
+        this.pupil = new Person().parse(response.getJSONObject("leerling"));
+        this.reason = new AbsenceReason().parse(response.getJSONObject("absentieReden"));
+        this.timeRegistered = response.getString("datumTijdInvoer");
+        this.timeStart = response.getString("beginDatumTijd");
+        this.timeEnd = response.getString("eindDatumTijd");
+        this.startLessonHour = (Integer) response.get("beginLesuur");
+        this.endLessonHour = (Integer) response.get("eindLesuur");
+        this.solved = response.getBoolean("afgehandeld");
+        this.owner = new Owner().parse(response.getJSONObject("eigenaar"));
     }
 
     public String toJson() {
-        return null;
+        JSONObject object = new JSONObject();
+        JSONArray linkArray = new JSONArray();
+        for(Link link : this.links) {
+            linkArray.put(link.toJson());
+        }
+        object.put("links", linkArray);
+        JSONArray permissionArray = new JSONArray();
+        for(Permission permission : this.permissions) {
+            permissionArray.put(permission.toJson());
+        }
+        object.put("permissions", permissionArray);
+        object.put("additionalObjects", this.additionalObjects);
+        object.put("leerling", this.pupil.toJson());
+        object.put("absentieReden", this.reason.toJson());
+        object.put("datumTijdInvoer", this.timeRegistered);
+        object.put("beginDatumTijd", this.timeStart);
+        object.put("eindDatumTijd", this.timeEnd);
+        object.put("beginLesuur", this.startLessonHour);
+        object.put("eindLesuur", this.endLessonHour);
+        object.put("adgehandeld", this.solved);
+        object.put("eigenaar", this.owner.toJson());
+        return object.toString();
     }
 
     public String getType() {

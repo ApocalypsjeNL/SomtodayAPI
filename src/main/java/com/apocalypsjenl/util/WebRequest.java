@@ -70,7 +70,7 @@ public class WebRequest {
 
             BufferedReader in;
 
-            if(con.getResponseCode() == 200) {
+            if(con.getResponseCode() >= 200 && con.getResponseCode() < 300) {
                 in = new BufferedReader(new InputStreamReader(con.getInputStream()));
             } else {
                 in = new BufferedReader(new InputStreamReader(con.getErrorStream()));
@@ -105,7 +105,7 @@ public class WebRequest {
 
             BufferedReader in;
 
-            if(con.getResponseCode() == 200) {
+            if(con.getResponseCode() >= 200 && con.getResponseCode() < 300) {
                 in = new BufferedReader(new InputStreamReader(con.getInputStream()));
             } else {
                 in = new BufferedReader(new InputStreamReader(con.getErrorStream()));
